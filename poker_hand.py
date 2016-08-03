@@ -1,9 +1,8 @@
+"""Representations and evaluations of Poker hands."""
 import card
 import collections
 import itertools
 
-PokerHand = collections.namedtuple('PokerHand', ['cards'])
-# Should consist of exactly two cards.
 HoldemHand = collections.namedtuple('HoldemHand', ['cards'])
 
 HIGH_CARD = 'High Card'
@@ -28,6 +27,36 @@ HAND_RANKS = {
     STRAIGHT_FLUSH: 8,
 }
 
+
+class PokerHand(object):
+    """Represents a five card poker hand."""
+    def __init__(self, cards=None):
+        self.cards = cards
+        self.hand_rank = get_hand_rank(self)
+        self.hand_rank_index = HAND_RANKS[self.hand_rank]
+        self.sorted_ranks = sorted(c.rank_index for c in cards)
+
+    def __eq__(self, other):
+        return (self.hand_rank_index == other.hand_rank_index and
+                compare_secondary_ranks(self, other) == 0)
+
+    def __lt__(self, rhs):
+        if self.hand_rank_index < rhs.hand_rank_index:
+            return True
+        elif self.hand_rank_index > rhs.hand_rank_index:
+            return False
+
+        # Compare secondary ranks returns < 0 if RHS is a "better" hand.
+        return compare_secondary_ranks(self, rhs) < 0
+
+    def __gt__(self, other):
+        return (not self.__lt__(other) and
+                not self == other)
+
+    def __le__(self, other):
+        return self.__lt__(other) or self == other
+
+
 def parse_hands_into_holdem_hands(hand_input):
     """Split the string into holdem hands.
 
@@ -45,42 +74,52 @@ def parse_hands_into_holdem_hands(hand_input):
         holdem_hands.append(he_hand)
     return holdem_hands
 
+
 def parse_string_into_cards(card_input):
+    """Parses a string of characters into Card objects.
+
+    Args:
+        card_input: str, representing cards.  May be space or comma separated.
+
+    Returns:
+        list of Cards.
+    """
     # Strip it down to characters only.
     card_input = card_input.lower().replace(' ', '').replace(',', '')
     cards = []
     for short_name_tuple in zip(card_input[::2], card_input[1::2]):
-        cards.append(card.create_card_from_short_name(''.join(short_name_tuple)))
+        cards.append(
+            card.create_card_from_short_name(''.join(short_name_tuple)))
     return cards
 
 
-def compare_poker_hands(lhs, rhs):
-    """Compares the two hands.
+def compare_secondary_ranks(lhs, rhs):
+    """Determine which of the two hands is ranked higher.
+
+    This assumes that the hands are of the same rank.
 
     Args:
         lhs: PokerHand.
         rhs: PokerHand.
 
     Returns:
-        int, a positive number if the lhs hand ranks higher, a negative number
-            if the rhs hand ranks higher, and zero if they are equal.
-    """
-    lhs_rank = get_hand_rank(lhs)
-    rhs_rank = get_hand_rank(rhs)
-    if HAND_RANKS[lhs_rank] > HAND_RANKS[rhs_rank]:
-        return -1
-    elif HAND_RANKS[lhs_rank] < HAND_RANKS[rhs_rank]:
-        return 1
-    return compare_secondary_ranks(lhs, rhs, lhs_rank)
+        int, -1 if the lhs hand ranks LOWER.  1 if the rhs hand ranks LOWER. 0
+            if they rank equally.
 
-def compare_secondary_ranks(lhs, rhs, rank):
+    Raises:
+        ValueError if the hands are not of the same rank.
+    """
+    if lhs.hand_rank != rhs.hand_rank:
+        raise ValueError(
+            'Hands must be of the same rank to use secondary ranks')
+
     # Special case for ace_to_five straights
-    if _is_ace_to_five_straight(lhs):
-        if _is_ace_to_five_straight(rhs):
+    if _is_ace_to_five_straight(lhs.sorted_ranks):
+        if _is_ace_to_five_straight(rhs.sorted_ranks):
             return 0
-        return 1
-    elif _is_ace_to_five_straight(rhs):
         return -1
+    elif _is_ace_to_five_straight(rhs.sorted_ranks):
+        return 1
 
     lhs_buckets = _build_rank_buckets_from_hand(lhs)
     lhs_relevant_ranks = [k for k in sorted(
@@ -90,12 +129,19 @@ def compare_secondary_ranks(lhs, rhs, rank):
         rhs_buckets, key=lambda k: -rhs_buckets[k])]
     for lhs_rank, rhs_rank in zip(lhs_relevant_ranks, rhs_relevant_ranks):
         if lhs_rank != rhs_rank:
-            return rhs_rank - lhs_rank
+            return lhs_rank - rhs_rank
     return 0
 
 
 def get_hand_rank(hand):
-    """Gets the rank of the poker hand."""
+    """Gets the rank of the poker hand.
+
+    Args:
+        hand: PokerHand.
+
+    Returns:
+        str, key of RANKS.
+    """
     if contains_straight_flush(hand):
         return STRAIGHT_FLUSH
     if contains_four_of_a_kind(hand):
@@ -114,11 +160,14 @@ def get_hand_rank(hand):
         return ONE_PAIR
     return HIGH_CARD
 
+
 def _build_rank_buckets_from_hand(hand):
+    """Builds up a dict mapping rank to counts within the hand."""
     rank_buckets = collections.defaultdict(int)
-    for card in hand.cards:
-        rank_buckets[card.rank_index] += 1
+    for c in hand.cards:
+        rank_buckets[c.rank_index] += 1
     return rank_buckets
+
 
 def _contains_exactly_x_of_a_kind(hand, num):
     rank_buckets = _build_rank_buckets_from_hand(hand)
@@ -127,13 +176,29 @@ def _contains_exactly_x_of_a_kind(hand, num):
             return True
     return False
 
-# TODO:  This will return false for two pair hands right now.  Is that the 
-#        behavior we want?
+
 def contains_one_pair(hand):
+    """Determine if a hand contains exactly one pair.
+
+    Args:
+        hand: PokerHand.
+
+    Returns:
+        bool, indicating whether or not the hand contains exactly one pair.
+    """
     return (_contains_exactly_x_of_a_kind(hand, 2) and
             not contains_two_pair(hand))
 
+
 def contains_two_pair(hand):
+    """Determine if a hand contains two pair.
+
+    Args:
+        hand: PokerHand.
+
+    Returns:
+        bool, indicating whether or not the hand contains two pair.
+    """
     rank_buckets = _build_rank_buckets_from_hand(hand)
     has_pair = False
     for count in rank_buckets.itervalues():
@@ -142,32 +207,84 @@ def contains_two_pair(hand):
                 return True
             has_pair = True
     return False
-            
-
 
 
 def contains_full_house(hand):
-    return (_contains_exactly_x_of_a_kind(hand, 3) and 
+    """Determine if a hand contains a full house.
+
+    Args:
+        hand: PokerHand.
+
+    Returns:
+        bool, indicating whether or not the hand contains a full house.
+    """
+
+    return (_contains_exactly_x_of_a_kind(hand, 3) and
             _contains_exactly_x_of_a_kind(hand, 2))
 
+
 def contains_four_of_a_kind(hand):
+    """Determine if a hand contains four of a kind.
+
+    Args:
+        hand: PokerHand.
+
+    Returns:
+        bool, indicating whether or not the hand contains four of a kind.
+    """
     return _contains_exactly_x_of_a_kind(hand, 4)
 
+
 def contains_three_of_a_kind(hand):
+    """Determine if a hand contains three of a kind.
+
+    Args:
+        hand: PokerHand.
+
+    Returns:
+        bool, indicating whether or not the hand contains three of a kind.
+    """
     return _contains_exactly_x_of_a_kind(hand, 3)
 
 def contains_straight_flush(hand):
+    """Determine if a hand contains a straight flush.
+
+    Args:
+        hand: PokerHand.
+
+    Returns:
+        bool, indicating whether or not the hand contains a straight flush.
+    """
     return contains_flush(hand) and contains_straight(hand)
 
+
 def contains_flush(hand):
-    """Determine if the given hand contains a flush (all cards same suit)."""
+    """Determine if the given hand contains a flush.
+
+    Args:
+        hand: PokerHand.
+
+    Returns:
+        bool, whether or not the hand contains a flush.
+    """
     suit_set = set(c.suit for c in hand.cards)
     return len(suit_set) == 1
 
+
 def _is_ace_to_five_straight(sorted_ranks):
+    """Special case for the ace-to-five straight."""
     return sorted_ranks == [2, 3, 4, 5, 14]
 
+
 def contains_straight(hand):
+    """Determine if the hand contains a straight.
+
+    Args:
+        hand: PokerHand.
+
+    Returns:
+        bool, whether or not the hand contains a straight.
+    """
     sorted_rank_index = sorted(c.rank_index for c in hand.cards)
 
     # Special case of the ace to five straight.
@@ -181,16 +298,23 @@ def contains_straight(hand):
         expected_rank += 1
     return True
 
+
 def get_best_hand_from_cards(cards):
+    """Finds the highest ranked five-card hand from all combinations of cards.
+
+    Args:
+        cards: list of Cards.
+
+    Returns:
+        PokerHand, the highest ranking poker hand possible, given the
+            collection of cards input.
+    """
     best_hand = None
     for five_cards in itertools.combinations(cards, 5):
         if not best_hand:
             best_hand = PokerHand(cards=five_cards)
             continue
         five_card_hand = PokerHand(cards=five_cards)
-        compare_result = compare_poker_hands(five_card_hand, best_hand)
-        if compare_result >= 0:
-            continue
-        best_hand = five_card_hand
+        best_hand = max(best_hand, five_card_hand)
     return best_hand
 

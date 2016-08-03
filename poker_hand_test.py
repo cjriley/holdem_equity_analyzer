@@ -51,7 +51,7 @@ class PokerHandParsingTest(unittest.TestCase):
 
 
 class PokerHandTest(unittest.TestCase):
-    
+
     def _create_poker_hand_from_short_name_list(self, short_name_list):
         return poker_hand.PokerHand(
             cards=[card.create_card_from_short_name(sn)
@@ -234,7 +234,7 @@ class PokerHandTest(unittest.TestCase):
         rhs_short_names = ['qd', 'qs', 'qc', 'qh', '5d']
         rhs_hand = self._create_poker_hand_from_short_name_list(rhs_short_names)
 
-        self.assertLess(poker_hand.compare_poker_hands(lhs_hand, rhs_hand), 0)
+        self.assertGreater(lhs_hand, rhs_hand)
 
     def test_hand_comparison_different_ranks_rhs_better(self):
         lhs_short_names = ['qd', 'qs', 'ac', '5h', '5d']
@@ -243,8 +243,7 @@ class PokerHandTest(unittest.TestCase):
         rhs_short_names = ['2c', '2s', '2h', '5c', '6c']
         rhs_hand = self._create_poker_hand_from_short_name_list(rhs_short_names)
 
-        self.assertGreater(
-            poker_hand.compare_poker_hands(lhs_hand, rhs_hand), 0)
+        self.assertLess(lhs_hand, rhs_hand)
 
     def test_hand_comparison_same_rank(self):
         lhs_short_names = ['qd', 'qs', 'ac', '5h', '5d']
@@ -253,39 +252,34 @@ class PokerHandTest(unittest.TestCase):
         rhs_short_names = ['2c', '2s', '5h', '5c', '6c']
         rhs_hand = self._create_poker_hand_from_short_name_list(rhs_short_names)
 
-        self.assertLess(poker_hand.compare_poker_hands(lhs_hand, rhs_hand), 0)
-        self.assertGreater(
-            poker_hand.compare_poker_hands(rhs_hand, lhs_hand), 0)
+        self.assertGreater(lhs_hand, rhs_hand)
 
-    def test_compare_secondary_ranks_lhs_better(self):
+    def test_compare_secondary_ranks_rhs_first(self):
         lhs_short_names = ['ah', 'ad', 'as', 'qd', 'qc']
         lhs_hand = self._create_poker_hand_from_short_name_list(lhs_short_names)
 
         rhs_short_names = ['qd', 'qc', '2s', '2d', '2c']
         rhs_hand = self._create_poker_hand_from_short_name_list(rhs_short_names)
 
-        self.assertLess(
-            poker_hand.compare_secondary_ranks(
-                lhs_hand, rhs_hand, poker_hand.FULL_HOUSE),
-            0)
-    def test_compare_secondary_ranks_rhs_better(self):
+        self.assertGreater(
+            poker_hand.compare_secondary_ranks(lhs_hand, rhs_hand), 0)
+
+    def test_compare_secondary_ranks_lhs_first(self):
         lhs_short_names = ['3h', '3d', '3s', 'qd', 'qc']
         lhs_hand = self._create_poker_hand_from_short_name_list(lhs_short_names)
 
         rhs_short_names = ['qd', 'qc', 'qs', '2d', '2c']
         rhs_hand = self._create_poker_hand_from_short_name_list(rhs_short_names)
 
-        self.assertGreater(
-            poker_hand.compare_secondary_ranks(
-                lhs_hand, rhs_hand, poker_hand.FULL_HOUSE),
-            0)
+        self.assertLess(
+            poker_hand.compare_secondary_ranks(lhs_hand, rhs_hand), 0)
 
     def test_compare_secondary_ranks_equal_hands(self):
         short_names = ['as', '2d', 'qs', 'ks', 'td']
         lhs_hand = self._create_poker_hand_from_short_name_list(short_names)
         rhs_hand = self._create_poker_hand_from_short_name_list(short_names)
-        self.assertEqual(0, poker_hand.compare_secondary_ranks(
-            lhs_hand, rhs_hand, poker_hand.HIGH_CARD))
+        self.assertEqual(
+            0, poker_hand.compare_secondary_ranks(lhs_hand, rhs_hand))
 
     def test_compare_secondary_ranks_ace_to_five(self):
         lhs_short_names = ['as', '2d', '3c', '4h', '5d']
@@ -293,15 +287,35 @@ class PokerHandTest(unittest.TestCase):
 
         rhs_short_names = ['8s', '9d', 'tc', 'jd', 'qd']
         rhs_hand = self._create_poker_hand_from_short_name_list(rhs_short_names)
-        self.assertGreater(
-            poker_hand.compare_secondary_ranks(
-                lhs_hand, rhs_hand, poker_hand.STRAIGHT),
-            0)
-        # Try the reverse order.
         self.assertLess(
-            poker_hand.compare_secondary_ranks(
-                rhs_hand, lhs_hand, poker_hand.STRAIGHT),
-            0)
+            poker_hand.compare_secondary_ranks(lhs_hand, rhs_hand), 0)
+
+        # Try the reverse order.
+        self.assertGreater(
+            poker_hand.compare_secondary_ranks(rhs_hand, lhs_hand), 0)
+
+    def test_poker_hand_object_comparison_lt(self):
+        lhs_short_names = ['as', 'qs', 'js', '5s', '2s']
+        lhs_hand = self._create_poker_hand_from_short_name_list(lhs_short_names)
+
+        rhs_short_names = ['2c', '5d', '8h', 'ts', 'ad']
+        rhs_hand = self._create_poker_hand_from_short_name_list(rhs_short_names)
+
+        self.assertTrue(rhs_hand < lhs_hand)
+        self.assertTrue(rhs_hand <= lhs_hand)
+        self.assertTrue(lhs_hand > rhs_hand)
+        self.assertTrue(lhs_hand >= rhs_hand)
+
+    def test_poker_hand_object_comparison_equality(self):
+        lhs_short_names = ['6d', '7h', '8s', '9c', 'td']
+        lhs_hand = self._create_poker_hand_from_short_name_list(lhs_short_names)
+
+        rhs_short_names = ['6h', '7d', '8s', '9c', 'td']
+        rhs_hand = self._create_poker_hand_from_short_name_list(rhs_short_names)
+
+        self.assertTrue(lhs_hand == rhs_hand)
+        self.assertFalse(lhs_hand > rhs_hand)
+
 
 if __name__ == '__main__':
     unittest.main()
