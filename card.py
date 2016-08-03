@@ -1,3 +1,4 @@
+"""Constants and class related to Card representations."""
 SUITS = {
     'Clubs': 0,
     'Diamonds': 1,
@@ -71,6 +72,7 @@ def create_card_from_short_name(short_name):
 
 
 class Card(object):
+    """Suit and rank representation for a card."""
     def __init__(self, suit, rank):
         if suit not in SUITS:
             raise ValueError('Invalid suit: %s' % suit)
@@ -83,6 +85,7 @@ class Card(object):
 
     # TODO: Needs testing and needs to be more efficient.
     def short_form(self):
+        """Get the short form string for the card."""
         result = ''
         for short_name, full_name in SHORT_RANKS_TO_FULL_RANKS.iteritems():
             if full_name == self.rank:
@@ -92,7 +95,6 @@ class Card(object):
                 result += short_name
         return result
 
-
     def __repr__(self):
         return '%s of %s' % (self.rank, self.suit)
 
@@ -101,5 +103,4 @@ class Card(object):
 
     def __hash__(self):
         return self.__repr__().__hash__()
-
 
