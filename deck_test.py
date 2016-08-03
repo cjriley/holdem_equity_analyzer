@@ -1,8 +1,10 @@
+"""Tests for deck.py"""
 import collections
 import unittest
 
 import card
 import deck
+
 
 class DeckTest(unittest.TestCase):
     def test_basic_deck(self):
@@ -36,19 +38,17 @@ class DeckTest(unittest.TestCase):
         shuffle_iterations = 1500
         card_keyed = collections.defaultdict(
             lambda: collections.defaultdict(int))
-        
+
         d = deck.Deck()
         for _ in xrange(shuffle_iterations):
             d.reset_and_shuffle()
-            for idx, card in enumerate(d.cards):
-                card_keyed[str(card)][idx] += 1
+            for idx, c in enumerate(d.cards):
+                card_keyed[str(c)][idx] += 1
 
-        for card_key, pos_dict in card_keyed.iteritems():
-            for position, count in pos_dict.iteritems():
+        for pos_dict in card_keyed.itervalues():
+            for count in pos_dict.itervalues():
                 self.assertAlmostEqual(
                     1.0/52, float(count)/shuffle_iterations, 1)
-    
-
 
 
 if __name__ == '__main__':

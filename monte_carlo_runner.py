@@ -1,8 +1,7 @@
+"""Probabilistic runner for Hold em equity and hand statistics."""
 import collections
-import itertools
 import time
 
-import card
 import deck
 import poker_hand
 
@@ -10,6 +9,7 @@ DEFAULT_ITERATIONS = 1000
 
 
 class HandDistribution(object):
+    """Track basic statistics about a single player's hands."""
     def __init__(self, player_label='Label'):
         self.label = player_label
         self.total_items = 0
@@ -18,10 +18,16 @@ class HandDistribution(object):
             self.counts[rank] = 0
 
     def increment_rank(self, rank):
+        """Increment the proper counter for the rank.
+
+        Args:
+            rank: str, the rank of the hand to record.
+        """
         self.counts[rank] += 1
         self.total_items += 1
 
     def print_report(self):
+        """Prints out stats about the hand distribution."""
         print '=' * 20 + ' %s ' % self.label + '=' * 20
         for hand, count in self.counts.iteritems():
             print '%-20s %5d\t%0.3f' % (
@@ -29,20 +35,24 @@ class HandDistribution(object):
 
 
 class MonteCarloRunner(object):
+    """Runs a Monte Carlo simulation of Hold em and outputs equity stats."""
     def __init__(self, holdem_hands, board_cards=None, dead_cards=None,
-            iterations=DEFAULT_ITERATIONS):
+                 iterations=DEFAULT_ITERATIONS):
         self.holdem_hands = holdem_hands
         self.board_cards = board_cards
         self.dead_cards = dead_cards
         self.iterations = iterations
 
         self.current_deck = None
+        self.start_time = 0
+        self.elapsed_time = 0
 
         # Hand index to number of wins.
         self.win_stats = collections.defaultdict(int)
         self.player_stats = []
         for idx, hand in enumerate(self.holdem_hands):
-            label = 'P%s %s' % (idx, ''.join(c.short_form() for c in hand.cards))
+            label = 'P%s %s' % (
+                idx, ''.join(c.short_form() for c in hand.cards))
             self.player_stats.append(
                 HandDistribution(player_label=label))
 
@@ -58,39 +68,58 @@ class MonteCarloRunner(object):
         self.current_deck.remove_cards_from_deck(cards_to_remove)
 
     def print_statistics(self):
+        """Print out statistics about equity along with final hand counts."""
+        print 'Ran %s iterations in %0.3f seconds' % (
+            self.iterations, self.elapsed_time)
         for index in range(len(self.holdem_hands)):
-            hand_short_form = ' '.join(c.short_form() for c in self.holdem_hands[index].cards)
+            hand_short_form = ' '.join(
+                c.short_form() for c in self.holdem_hands[index].cards)
             print 'P%s)  %-15s %0.3f' % (
                 index,
                 hand_short_form,
                 float(self.win_stats.get(index, 0))/self.iterations)
-        for idx, stats in enumerate(self.player_stats):
+        for stats in self.player_stats:
             stats.print_report()
 
     def run_all_iterations(self):
-        for idx in xrange(self.iterations):
+        """Run the specified number of iterations and print out stats."""
+        self.start_time = time.time()
+        for _ in xrange(self.iterations):
             self.run_iteration()
+        self.elapsed_time = time.time() - self.start_time
 
         self.print_statistics()
 
+    def _get_best_hands_for_each_player(self, iteration_board_cards):
+        """Find the best hand for each player, given the board.
 
-    def run_iteration(self):
-        self._reset_deck()
-        
-        # Finish the board
-        iteration_board_cards = self.board_cards[:]
-        while len(iteration_board_cards) < 5:
-            iteration_board_cards.append(self.current_deck.pop())
+        Args:
+            iteration_board_cards: list of Card, the cards that are present on
+                the board for this hand.
 
+        Returns:
+            dict, mapping player indices to their best hand for this hand.
+        """
         index_to_best_hands = {}
         for idx, holdem_hand in enumerate(self.holdem_hands):
-            index_to_best_hands[idx] = poker_hand.get_best_hand_from_cards(
+            best_hand_for_player = poker_hand.get_best_hand_from_cards(
                 holdem_hand.cards + iteration_board_cards)
-            # TODO Try to reuse the above evaluation.
-            self.player_stats[idx].increment_rank(poker_hand.get_hand_rank(
-                index_to_best_hands[idx]))
+            index_to_best_hands[idx] = best_hand_for_player
+            self.player_stats[idx].increment_rank(
+                best_hand_for_player.hand_rank)
+        return index_to_best_hands
 
-        # Now update the statistics.
+    def _get_winning_indices(self, index_to_best_hands):
+        """Determine which player or players won the hand.
+
+        Args:
+            index_to_best_hands: dict, mapping player_index to their best
+                poker hand for this iteration.
+
+        Returns:
+            list of int, the player indices that won or tied for the winning
+                hand.
+        """
         winning_indices = []
         winning_hand = None
         for idx, best_hand in index_to_best_hands.iteritems():
@@ -98,16 +127,28 @@ class MonteCarloRunner(object):
                 winning_indices.append(idx)
                 winning_hand = best_hand
                 continue
-            comparison_result = poker_hand.compare_poker_hands(
-                best_hand, winning_hand)
-            if comparison_result == 0:
-                winning_indices.append(idx)
-                continue
-            if comparison_result < 0:
+            if best_hand > winning_hand:
                 winning_indices = [idx]
                 winning_hand = best_hand
+            elif best_hand == winning_hand:
+                winning_indices.append(idx)
+        return winning_indices
+
+    def run_iteration(self):
+        """Run a single iteration of the simulation."""
+        self._reset_deck()
+
+        # Finish the board
+        iteration_board_cards = self.board_cards[:]
+        while len(iteration_board_cards) < 5:
+            iteration_board_cards.append(self.current_deck.pop())
+
+        index_to_best_hands = self._get_best_hands_for_each_player(
+            iteration_board_cards)
+
+        # Now update the statistics.
+        winning_indices = self._get_winning_indices(index_to_best_hands)
 
         for idx in winning_indices:
             self.win_stats[idx] += 1
-        # TODO update hand stats as well.
 
