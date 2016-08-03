@@ -1,11 +1,32 @@
 import collections
 import itertools
+import time
 
 import card
 import deck
 import poker_hand
 
 DEFAULT_ITERATIONS = 1000
+
+
+class HandDistribution(object):
+    def __init__(self, player_label='Label'):
+        self.label = player_label
+        self.total_items = 0
+        self.counts = {}
+        for rank in poker_hand.HAND_RANKS.iterkeys():
+            self.counts[rank] = 0
+
+    def increment_rank(self, rank):
+        self.counts[rank] += 1
+        self.total_items += 1
+
+    def print_report(self):
+        print '=' * 20 + ' %s ' % self.label + '=' * 20
+        for hand, count in self.counts.iteritems():
+            print '%-20s %5d\t%0.3f' % (
+                hand, count, float(count)/self.total_items)
+
 
 class MonteCarloRunner(object):
     def __init__(self, holdem_hands, board_cards=None, dead_cards=None,
@@ -19,6 +40,11 @@ class MonteCarloRunner(object):
 
         # Hand index to number of wins.
         self.win_stats = collections.defaultdict(int)
+        self.player_stats = []
+        for idx, hand in enumerate(self.holdem_hands):
+            label = 'P%s %s' % (idx, ''.join(c.short_form() for c in hand.cards))
+            self.player_stats.append(
+                HandDistribution(player_label=label))
 
     def _reset_deck(self):
         if not self.current_deck:
@@ -32,14 +58,14 @@ class MonteCarloRunner(object):
         self.current_deck.remove_cards_from_deck(cards_to_remove)
 
     def print_statistics(self):
-        for index, wins in self.win_stats.iteritems():
-            print '%s ==> %s' % (index, wins)
         for index in range(len(self.holdem_hands)):
             hand_short_form = ' '.join(c.short_form() for c in self.holdem_hands[index].cards)
-            print 'P%s)%-15s %0.3f' % (
+            print 'P%s)  %-15s %0.3f' % (
                 index,
                 hand_short_form,
                 float(self.win_stats.get(index, 0))/self.iterations)
+        for idx, stats in enumerate(self.player_stats):
+            stats.print_report()
 
     def run_all_iterations(self):
         for idx in xrange(self.iterations):
@@ -60,6 +86,9 @@ class MonteCarloRunner(object):
         for idx, holdem_hand in enumerate(self.holdem_hands):
             index_to_best_hands[idx] = poker_hand.get_best_hand_from_cards(
                 holdem_hand.cards + iteration_board_cards)
+            # TODO Try to reuse the above evaluation.
+            self.player_stats[idx].increment_rank(poker_hand.get_hand_rank(
+                index_to_best_hands[idx]))
 
         # Now update the statistics.
         winning_indices = []
