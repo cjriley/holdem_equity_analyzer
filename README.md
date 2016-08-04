@@ -1,8 +1,30 @@
 # Texas Hold 'em Equity and Hand Distribution
 
+## Introduction
+
+This is a command line utility that allows you to specify various game states
+in Texas Hold 'em and outputs each hand's equity, along with the hand
+distribution each hand will end up with.
+
+### Stats explanation
+
+##### Equity
+The fraction output here indicates what portion of the current pot the player
+would expect to win.  For example, when we run two hands, both of which are the
+same pocket pair, the equity of each player is around .5.  The hand will
+always end in a tie except when there are 4 to a suit on board and one of the
+players has a flush (and this will be equally distributed on each side under
+normal circumstances).
+
+##### Hand Distribution
+This just counts up the number of times each starting hand ends up with a
+specific hand.
+
+
 ### Basic invocations
 
 Run an interactive version of the script:
+
     python ./main_holdem_odds.py
 
     Please input comma separated hold em hands.  For example, ahad,kskd
@@ -11,93 +33,110 @@ Run an interactive version of the script:
 
     Please input any dead cards, separated by spaces.  For example, "Ah As"
 
-    Ran 1000 iterations in 1.417 seconds
-    P0)  As Ad           0.535
-    P1)  Qs Qc           0.200
-    P2)  7h 6h           0.267
+    Ran 1000 iterations in 1.445 seconds
+
+    Overall Equity
+    P0)  As Ad           0.575
+    P1)  Qs Qc           0.210
+    P2)  7h 6h           0.214
+
+
+    Hand distribution for each player
     ==================== P0 AsAd ====================
-    Four-of-a-kind           6      0.006
-    Two pair               415      0.415
-    Three-of-a-kind        110      0.110
-    Straight                16      0.016
-    Flush                   18      0.018
+    Four-of-a-kind          11      0.011
+    Two pair               371      0.371
+    Three-of-a-kind        122      0.122
+    Straight                18      0.018
+    Flush                   34      0.034
     Straight Flush           0      0.000
     High Card                0      0.000
-    One pair               349      0.349
-    Full House              86      0.086
+    One pair               346      0.346
+    Full House              98      0.098
     ==================== P1 QsQc ====================
     Four-of-a-kind          10      0.010
-    Two pair               405      0.405
-    Three-of-a-kind        116      0.116
-    Straight                17      0.017
-    Flush                   20      0.020
+    Two pair               376      0.376
+    Three-of-a-kind        123      0.123
+    Straight                16      0.016
+    Flush                   30      0.030
     Straight Flush           0      0.000
     High Card                0      0.000
-    One pair               342      0.342
-    Full House              90      0.090
+    One pair               354      0.354
+    Full House              91      0.091
     ==================== P2 7h6h ====================
     Four-of-a-kind           2      0.002
-    Two pair               237      0.237
+    Two pair               229      0.229
     Three-of-a-kind         48      0.048
-    Straight               107      0.107
-    Flush                   90      0.090
-    Straight Flush           2      0.002
-    High Card              106      0.106
-    One pair               374      0.374
-    Full House              34      0.034
+    Straight               117      0.117
+    Flush                   67      0.067
+    Straight Flush           4      0.004
+    High Card              130      0.130
+    One pair               385      0.385
+    Full House              18      0.018
+    python ./main_holdem_odds.py
+
 
 Run a non-interactive version.
 
     python ./main_holdem_odds.py --hands=2c3c,TsTd --nointeraction
 
-    Ran 1000 iterations in 1.002 seconds
+    Ran 1000 iterations in 1.097 seconds
+
+    Overall Equity
     P0)  2c 3c           0.213
-    P1)  Ts Td           0.793
+    P1)  Ts Td           0.787
+
+
+    Hand distribution for each player
     ==================== P0 2c3c ====================
     Four-of-a-kind           3      0.003
-    Two pair               235      0.235
-    Three-of-a-kind         43      0.043
-    Straight                51      0.051
-    Flush                   76      0.076
-    Straight Flush           0      0.000
-    High Card              146      0.146
-    One pair               413      0.413
-    Full House              33      0.033
+    Two pair               222      0.222
+    Three-of-a-kind         55      0.055
+    Straight                50      0.050
+    Flush                   74      0.074
+    Straight Flush           1      0.001
+    High Card              149      0.149
+    One pair               431      0.431
+    Full House              15      0.015
     ==================== P1 TsTd ====================
-    Four-of-a-kind          11      0.011
-    Two pair               414      0.414
-    Three-of-a-kind        106      0.106
-    Straight                23      0.023
-    Flush                   21      0.021
-    Straight Flush           3      0.003
+    Four-of-a-kind          10      0.010
+    Two pair               380      0.380
+    Three-of-a-kind        113      0.113
+    Straight                30      0.030
+    Flush                   13      0.013
+    Straight Flush           0      0.000
     High Card                0      0.000
-    One pair               328      0.328
-    Full House              94      0.094
+    One pair               358      0.358
+    Full House              96      0.096
 
 Specify a board:
+
     python ./main_holdem_odds.py --hands=2c3c,TsTd --board_cards=4c5cTh --nointeraction
 
-    Ran 1000 iterations in 0.966 seconds
-    P0)  2c 3c           0.421
-    P1)  Ts Td           0.579
+    Ran 1000 iterations in 1.038 seconds
+
+    Overall Equity
+    P0)  2c 3c           0.441
+    P1)  Ts Td           0.559
+
+
+    Hand distribution for each player
     ==================== P0 2c3c ====================
     Four-of-a-kind           0      0.000
-    Two pair                46      0.046
-    Three-of-a-kind         15      0.015
-    Straight               221      0.221
-    Flush                  273      0.273
-    Straight Flush          77      0.077
-    High Card              118      0.118
-    One pair               250      0.250
+    Two pair                52      0.052
+    Three-of-a-kind          6      0.006
+    Straight               195      0.195
+    Flush                  276      0.276
+    Straight Flush         111      0.111
+    High Card              132      0.132
+    One pair               228      0.228
     Full House               0      0.000
     ==================== P1 TsTd ====================
-    Four-of-a-kind          39      0.039
+    Four-of-a-kind          44      0.044
     Two pair                 0      0.000
-    Three-of-a-kind        654      0.654
+    Three-of-a-kind        662      0.662
     Straight                 0      0.000
     Flush                    0      0.000
     Straight Flush           0      0.000
     High Card                0      0.000
     One pair                 0      0.000
-    Full House             307      0.307
-
+    Full House             294      0.294 
