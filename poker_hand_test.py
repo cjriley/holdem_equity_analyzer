@@ -1,6 +1,7 @@
 import unittest
 
 import card
+import hand_ranges
 import poker_hand
 
 class HoldemHandTest(unittest.TestCase):
@@ -29,29 +30,40 @@ class HoldemHandTest(unittest.TestCase):
 class PokerHandParsingTest(unittest.TestCase):
     def test_parse_hands_valid_one_hand(self):
         hand_input = 'ahad'
-        hands = poker_hand.parse_hands_into_holdem_hands(hand_input)
+        ranges = poker_hand.parse_hands_into_holdem_hands(hand_input)
 
-        self.assertEqual(1, len(hands))
-        self.assertIn(card.create_card_from_short_name('ah'), hands[0].cards)
-        self.assertIn(card.create_card_from_short_name('ad'), hands[0].cards)
+        self.assertEqual(1, len(ranges))
+        self.assertEqual(1, len(ranges[0].possible_hands))
+        self.assertHandMatchesShortCards(
+            ['ah', 'ad'], ranges[0].possible_hands[0])
 
     def test_parse_hands_valid_two_hands(self):
         hand_input = 'ahad,ksqc'
-        hands = poker_hand.parse_hands_into_holdem_hands(hand_input)
+        ranges = poker_hand.parse_hands_into_holdem_hands(hand_input)
 
-        self.assertEqual(2, len(hands))
-        self.assertIn(card.create_card_from_short_name('ah'), hands[0].cards)
-        self.assertIn(card.create_card_from_short_name('ad'), hands[0].cards)
-        self.assertIn(card.create_card_from_short_name('ks'), hands[1].cards)
-        self.assertIn(card.create_card_from_short_name('qc'), hands[1].cards)
+        self.assertEqual(2, len(ranges))
+        for r in ranges:
+            self.assertEqual(1, len(r.possible_hands))
+        self.assertHandMatchesShortCards(
+            ['ah', 'ad'], ranges[0].possible_hands[0])
+        self.assertHandMatchesShortCards(
+            ['ks', 'qc'], ranges[1].possible_hands[0])
+
+    def assertHandMatchesShortCards(self, short_cards, hand):
+        expected_hand = poker_hand.HoldemHand(cards=[
+            card.create_card_from_short_name(sn) for sn in short_cards])
+        self.assertEqual(expected_hand, hand)
 
     def test_parse_hands_with_space(self):
         hand_input = 'Ah Ad'
-        hands = poker_hand.parse_hands_into_holdem_hands(hand_input)
+        ranges = poker_hand.parse_hands_into_holdem_hands(hand_input)
 
-        self.assertEqual(1, len(hands))
-        self.assertIn(card.create_card_from_short_name('ah'), hands[0].cards)
-        self.assertIn(card.create_card_from_short_name('ad'), hands[0].cards)
+        self.assertEqual(1, len(ranges))
+        self.assertEqual(1, len(ranges[0].possible_hands))
+        self.assertHandMatchesShortCards(
+            ['ah', 'ad'], ranges[0].possible_hands[0])
+        #self.assertIn(card.create_card_from_short_name('ah'), hands[0].cards)
+        #self.assertIn(card.create_card_from_short_name('ad'), hands[0].cards)
 
     def test_parse_string_into_cards_space_sep(self):
         card_input = 'ah ad qs qc'
@@ -69,7 +81,8 @@ class PokerHandParsingTest(unittest.TestCase):
 
     def test_parse_hands_one_hand_invalid(self):
         hand_input = 'asqc,jjjc'
-        with self.assertRaisesRegexp(ValueError, 'Invalid suit'):
+        with self.assertRaisesRegexp(
+                hand_ranges.HandDescriptionParseError, 'Invalid hand'):
             poker_hand.parse_hands_into_holdem_hands(hand_input)
 
 
@@ -338,6 +351,21 @@ class PokerHandTest(unittest.TestCase):
 
         self.assertTrue(lhs_hand == rhs_hand)
         self.assertFalse(lhs_hand > rhs_hand)
+    
+    def test_hand_range_re_pair(self):
+        self.assertIsNotNone(poker_hand.HAND_RANGE_REGEX.search('88'))
+
+    def test_hand_range_re_offsuit(self):
+        self.assertIsNotNone(poker_hand.HAND_RANGE_REGEX.search('ako'))
+
+    def test_hand_range_re_suited(self):
+        self.assertIsNotNone(poker_hand.HAND_RANGE_REGEX.search('aks'))
+
+    def test_hand_range_re_specific_hand(self):
+        self.assertIsNone(poker_hand.HAND_RANGE_REGEX.search('as2d'))
+
+    def test_hand_range_re_specific_hand2(self):
+        self.assertIsNone(poker_hand.HAND_RANGE_REGEX.search('8c9c'))
 
 
 if __name__ == '__main__':

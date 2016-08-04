@@ -1,1 +1,1 @@
-coverage run -m unittest discover -s ./ -p "*_test.py" && coverage html
+coverage run -m unittest discover -s ./ -p "*_test.py" && coverage html --include=./*.py

@@ -6,18 +6,19 @@ import poker_hand
 
 class MonteCarloRunnerTest(unittest.TestCase):
     def test_reset_deck(self):
-        he_hands = poker_hand.parse_hands_into_holdem_hands('asad,qsjh')
+        he_ranges = poker_hand.parse_hands_into_holdem_hands('asad,qsjh')
         board_cards = poker_hand.parse_string_into_cards('2c2d')
 
         dead_cards = poker_hand.parse_string_into_cards('8h')
 
         mcr = monte_carlo_runner.MonteCarloRunner(
-            he_hands, board_cards=board_cards, dead_cards=dead_cards)
+            he_ranges, board_cards=board_cards, dead_cards=dead_cards)
 
-        mcr._reset_deck()
+        mcr._reset_deck(mcr.select_hands_for_players())
         self.assertEqual(52 - 7, len(mcr.current_deck.cards))
         removed_cards = (
-            he_hands[0].cards + he_hands[1].cards + board_cards + dead_cards)
+            he_ranges[0].possible_hands[0].cards +
+            he_ranges[1].possible_hands[0].cards + board_cards + dead_cards)
         for rc in removed_cards:
             self.assertNotIn(rc, mcr.current_deck.cards)
 
@@ -28,7 +29,7 @@ class MonteCarloRunnerTest(unittest.TestCase):
             he_hands, board_cards=board_cards)
 
         best_hands_for_each_player = mcr._get_best_hands_for_each_player(
-            board_cards)
+            mcr.select_hands_for_players(), board_cards)
 
         self.assertEqual(2, len(best_hands_for_each_player))
 

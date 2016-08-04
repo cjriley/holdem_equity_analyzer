@@ -2,6 +2,10 @@
 import card
 import collections
 import itertools
+import re
+
+import hand_ranges
+
 
 HIGH_CARD = 'High Card'
 ONE_PAIR = 'One pair'
@@ -24,6 +28,8 @@ HAND_RANKS = {
     FOUR_OF_A_KIND: 7,
     STRAIGHT_FLUSH: 8,
 }
+
+HAND_RANGE_REGEX = re.compile(r'([2-9tjqka]{2}|[2-9tjqka]{2}[os])')
 
 
 class PokerHand(object):
@@ -61,6 +67,9 @@ class HoldemHand(object):
         self.cards = cards
         self.as_set = set(cards)
 
+    def __repr__(self):
+        return '%s%s' % (self.cards[0].short_form(), self.cards[1].short_form())
+
     def __eq__(self, other):
         return self.as_set == other.as_set
 
@@ -69,9 +78,21 @@ class HoldemHand(object):
 
 
 class HoldemHandRange(object):
-    def __init__(self, possible_hands):
+    def __init__(self, possible_hands, label=None):
         self.possible_hands = possible_hands
+        if not label:
+            self.label = ','.join('%s' % h for h in possible_hands)
+        else:
+            self.label = label
 
+    def __repr__(self):
+        return self.label
+
+
+def prettify_range_label(label):
+    if len(label) == 3:
+        return label[0:2].upper() + label[2].lower()
+    return label.upper()
 
 def parse_hands_into_holdem_hands(hand_input):
     """Split the string into holdem hands.
@@ -81,14 +102,21 @@ def parse_hands_into_holdem_hands(hand_input):
             names.  For example: "ahad,kskc,qdqc".  Space is ignored.
 
     Returns:
-        list of HoldemHand.
+        list of HoldemHandRange.
     """
-    holdem_hands = []
+    holdem_ranges = []
     hands = hand_input.replace(' ', '').lower().split(',')
+
     for hand in hands:
-        he_hand = HoldemHand(cards=parse_string_into_cards(hand))
-        holdem_hands.append(he_hand)
-    return holdem_hands
+        if HAND_RANGE_REGEX.search(hand):
+            possible_hands = hand_ranges.single_hand_description_to_hands(hand)
+            holdem_ranges.append(
+                HoldemHandRange(possible_hands,
+                                label=prettify_range_label(hand)))
+        else:
+            he_hand = HoldemHand(cards=parse_string_into_cards(hand))
+            holdem_ranges.append(HoldemHandRange([he_hand]))
+    return holdem_ranges
 
 
 def parse_string_into_cards(card_input):
