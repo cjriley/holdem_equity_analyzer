@@ -3,8 +3,6 @@ import card
 import collections
 import itertools
 
-HoldemHand = collections.namedtuple('HoldemHand', ['cards'])
-
 HIGH_CARD = 'High Card'
 ONE_PAIR = 'One pair'
 TWO_PAIR = 'Two pair'
@@ -55,6 +53,24 @@ class PokerHand(object):
 
     def __le__(self, other):
         return self.__lt__(other) or self == other
+
+
+class HoldemHand(object):
+    """Representation of a holdem hand."""
+    def __init__(self, cards=None):
+        self.cards = cards
+        self.as_set = set(cards)
+
+    def __eq__(self, other):
+        return self.as_set == other.as_set
+
+    def __hash__(self, other):
+        return str(self.as_set).__hash__()
+
+
+class HoldemHandRange(object):
+    def __init__(self, possible_hands):
+        self.possible_hands = possible_hands
 
 
 def parse_hands_into_holdem_hands(hand_input):

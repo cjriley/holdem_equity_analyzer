@@ -3,6 +3,29 @@ import unittest
 import card
 import poker_hand
 
+class HoldemHandTest(unittest.TestCase):
+    def test_hand_eq(self):
+        lhs_short = ['as','ad']
+        lhs_cards = [card.create_card_from_short_name(sn) for sn in lhs_short]
+
+        rhs_cards = [card.create_card_from_short_name(sn) for sn in lhs_short]
+
+        lhs_he_hand = poker_hand.HoldemHand(cards=lhs_cards)
+        rhs_he_hand = poker_hand.HoldemHand(cards=rhs_cards)
+
+        self.assertEqual(lhs_he_hand, rhs_he_hand)
+
+    def test_hand_eq_ne(self):
+        lhs_short = ['as','ad']
+        lhs_cards = [card.create_card_from_short_name(sn) for sn in lhs_short]
+        lhs_he_hand = poker_hand.HoldemHand(cards=lhs_cards)
+
+        rhs_short = ['ks', 'kd']
+        rhs_cards = [card.create_card_from_short_name(sn) for sn in rhs_short]
+        rhs_he_hand = poker_hand.HoldemHand(cards=rhs_cards)
+        self.assertNotEqual(lhs_he_hand, rhs_he_hand)
+
+
 class PokerHandParsingTest(unittest.TestCase):
     def test_parse_hands_valid_one_hand(self):
         hand_input = 'ahad'
