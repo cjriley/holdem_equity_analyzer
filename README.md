@@ -6,6 +6,28 @@ This is a command line utility that allows you to specify various game states
 in Texas Hold 'em and outputs each hand's equity, along with the hand
 distribution each hand will end up with.
 
+### Usage
+
+    usage: main_holdem_odds.py [-h] [--num_iterations NUM_ITERATIONS]
+                               [--hands HANDS] [--board_cards BOARD_CARDS]
+                               [--dead_cards DEAD_CARDS] [--nointeraction]
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --num_iterations NUM_ITERATIONS
+                            Number of iterations to run.
+      --hands HANDS         Hands to test. If not specified, these will be
+                            provided interactively. Format should be comma
+                            separated, e.g. AhAs,KsKd . You may also specify
+                            generic hands, like TT, AKo, or KQs
+      --board_cards BOARD_CARDS
+                            Cards on the board. If not specified, these will be
+                            provided interactively.
+      --dead_cards DEAD_CARDS
+                            Dead cards. These will be excluded from consideration
+                            in the hands.
+      --nointeraction       Disable interactively asking for cards.
+
 ### Stats explanation
 
 ##### Equity

@@ -95,7 +95,8 @@ def _build_argparse():
         '--hands',
         help=('Hands to test.  If not specified, these will be provided '
               'interactively. Format should be comma separated, e.g. '
-              'AhAs,KsKd .'),
+              'AhAs,KsKd .  You may also specify generic hands, like TT, '
+              'AKo, or KQs'),
         type=str, default='')
     parser.add_argument(
         '--board_cards',
