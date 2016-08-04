@@ -96,9 +96,10 @@ class HandDistributionTest(unittest.TestCase):
         }
         for rank, count in rank_counts.iteritems():
             for _ in xrange(count):
-                hd.increment_rank(rank)
-        for rank, count in hd.counts.iteritems():
-            self.assertEqual(rank_counts.get(rank, 0), count)
+                hd.increment_rank(rank, monte_carlo_runner.WIN_RESULT)
+
+        for rank, result_dict in hd.counts.iteritems():
+            self.assertEqual(rank_counts.get(rank, 0), sum(result_dict.itervalues()))
         self.assertEqual(6, hd.total_items)
 
 

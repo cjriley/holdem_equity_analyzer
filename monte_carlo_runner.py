@@ -6,6 +6,10 @@ import deck
 import poker_hand
 
 DEFAULT_ITERATIONS = 1000
+WIN_RESULT = 'w'
+LOSS_RESULT = 'l'
+TIE_RESULT = 't'
+VALID_RESULTS = frozenset([WIN_RESULT, LOSS_RESULT, TIE_RESULT])
 
 
 class HandDistribution(object):
@@ -15,23 +19,41 @@ class HandDistribution(object):
         self.total_items = 0
         self.counts = {}
         for rank in poker_hand.HAND_RANKS.iterkeys():
-            self.counts[rank] = 0
+            self.counts[rank] = {}
+            for result in VALID_RESULTS:
+                self.counts[rank][result] = 0
 
-    def increment_rank(self, rank):
+    def increment_rank(self, rank, result):
         """Increment the proper counter for the rank.
 
         Args:
             rank: str, the rank of the hand to record.
+            result: str, one of the above results.
         """
-        self.counts[rank] += 1
+        if result not in VALID_RESULTS:
+            raise ValueError('Invalid result: %s' % result)
+        self.counts[rank][result] += 1
         self.total_items += 1
 
     def print_report(self):
         """Prints out stats about the hand distribution."""
         print '=' * 20 + ' %s ' % self.label + '=' * 20
-        for hand, count in self.counts.iteritems():
-            print '%-20s %5d\t%0.3f' % (
-                hand, count, float(count)/self.total_items)
+        print '%-20s%5s\t%4s\t%4s\t%4s\t%4s' % (
+            'Hand' + '=' * 16, '#', 'Frac', 'W', 'Tie', 'L')
+        for hand, result_dict in self.counts.iteritems():
+            total_for_hand = sum(result_dict.itervalues())
+            if total_for_hand == 0:
+                win_frac = 0.0
+                tie_frac = 0.0
+                loss_frac = 0.0
+            else:
+                win_frac = float(result_dict[WIN_RESULT])/total_for_hand
+                tie_frac = float(result_dict[TIE_RESULT])/total_for_hand
+                loss_frac = float(
+                    result_dict[LOSS_RESULT])/total_for_hand
+            print '%-20s%5d\t%0.3f\t%0.3f\t%0.3f\t%0.3f' % (
+                hand, total_for_hand, float(total_for_hand)/self.total_items,
+                win_frac, tie_frac, loss_frac)
 
 
 class MonteCarloRunner(object):
@@ -48,7 +70,7 @@ class MonteCarloRunner(object):
         self.elapsed_time = 0
 
         # Hand index to number of wins.
-        self.win_stats = collections.defaultdict(int)
+        self.win_stats = collections.defaultdict(float)
         self.player_stats = []
         for idx, hand in enumerate(self.holdem_hands):
             label = 'P%s %s' % (
@@ -69,8 +91,10 @@ class MonteCarloRunner(object):
 
     def print_statistics(self):
         """Print out statistics about equity along with final hand counts."""
-        print 'Ran %s iterations in %0.3f seconds' % (
+        print 'Ran %s iterations in %0.3f seconds\n' % (
             self.iterations, self.elapsed_time)
+
+        print 'Overall Equity'
         for index in range(len(self.holdem_hands)):
             hand_short_form = ' '.join(
                 c.short_form() for c in self.holdem_hands[index].cards)
@@ -78,6 +102,8 @@ class MonteCarloRunner(object):
                 index,
                 hand_short_form,
                 float(self.win_stats.get(index, 0))/self.iterations)
+        print '\n'
+        print 'Hand distribution for each player'
         for stats in self.player_stats:
             stats.print_report()
 
@@ -105,8 +131,6 @@ class MonteCarloRunner(object):
             best_hand_for_player = poker_hand.get_best_hand_from_cards(
                 holdem_hand.cards + iteration_board_cards)
             index_to_best_hands[idx] = best_hand_for_player
-            self.player_stats[idx].increment_rank(
-                best_hand_for_player.hand_rank)
         return index_to_best_hands
 
     def _get_winning_indices(self, index_to_best_hands):
@@ -145,10 +169,20 @@ class MonteCarloRunner(object):
 
         index_to_best_hands = self._get_best_hands_for_each_player(
             iteration_board_cards)
-
-        # Now update the statistics.
         winning_indices = self._get_winning_indices(index_to_best_hands)
 
+        # Now update the statistics.
         for idx in winning_indices:
-            self.win_stats[idx] += 1
-
+            self.win_stats[idx] += 1.0 / len(winning_indices)
+        for idx, best_hand in index_to_best_hands.iteritems():
+            if idx in winning_indices:
+                if len(winning_indices) > 1:
+                    self.player_stats[idx].increment_rank(
+                        best_hand.hand_rank, TIE_RESULT)
+                else:
+                    self.player_stats[idx].increment_rank(
+                        best_hand.hand_rank, WIN_RESULT)
+            else:
+                self.player_stats[idx].increment_rank(
+                    best_hand.hand_rank, LOSS_RESULT)
+            
