@@ -14,7 +14,7 @@ import poker_hand
 
 
 
-def get_player_hands(hands=''):
+def get_player_hands(hands='', used_cards=None):
     """Determine which hands to simulate.
 
     Note that if we have an empty input, we can't proceed, so we forcibly
@@ -23,6 +23,8 @@ def get_player_hands(hands=''):
     Args:
         hands: str, representation of which hands to simulate.  In the form:
             "AsAh,KsKd".
+        used_cards: list of Card, cards that are not available.
+
     Returns:
         list of HoldemHand, the hands to simulate.
     """
@@ -30,7 +32,8 @@ def get_player_hands(hands=''):
         print ('Please input comma separated hold em hands.  '
                'For example, ahad,kskd')
         hands = raw_input()
-    return poker_hand.parse_hands_into_holdem_hands(hands)
+    return poker_hand.parse_hands_into_holdem_hands(
+            hands, used_cards=used_cards)
 
 
 def get_board_cards(board_cards='', interaction=True):
@@ -73,12 +76,14 @@ def get_dead_cards(dead_cards='', interaction=True):
 
 def main(parsed_args):
     """Run the main program."""
-    player_he_hands = get_player_hands(hands=parsed_args.hands)
     board_cards = get_board_cards(
         board_cards=parsed_args.board_cards,
         interaction=parsed_args.interaction)
     dead_cards = get_dead_cards(
         dead_cards=parsed_args.dead_cards, interaction=parsed_args.interaction)
+    used_cards = board_cards + dead_cards
+    player_he_hands = get_player_hands(
+        hands=parsed_args.hands, used_cards=used_cards)
 
     mc_runner = monte_carlo_runner.MonteCarloRunner(
         player_he_hands, board_cards=board_cards, dead_cards=dead_cards,

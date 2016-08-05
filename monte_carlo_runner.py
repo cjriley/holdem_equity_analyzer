@@ -13,6 +13,10 @@ TIE_RESULT = 't'
 VALID_RESULTS = frozenset([WIN_RESULT, LOSS_RESULT, TIE_RESULT])
 
 
+class Error(Exception):
+    pass
+
+
 class HandDistribution(object):
     """Track basic statistics about a single player's hands."""
     def __init__(self, player_label='Label'):
@@ -59,9 +63,11 @@ class HandDistribution(object):
 
 class MonteCarloRunner(object):
     """Runs a Monte Carlo simulation of Hold em and outputs equity stats."""
-    def __init__(self, holdem_hands, board_cards=None, dead_cards=None,
+    def __init__(self, holdem_ranges, board_cards=None, dead_cards=None,
                  iterations=DEFAULT_ITERATIONS):
-        self.holdem_hands = holdem_hands
+        self._validate_input_specification(
+            holdem_ranges, board_cards or [], dead_cards or [])
+        self.holdem_ranges = holdem_ranges
         self.board_cards = board_cards
         self.dead_cards = dead_cards
         self.iterations = iterations
@@ -73,10 +79,33 @@ class MonteCarloRunner(object):
         # Hand index to number of wins.
         self.win_stats = collections.defaultdict(float)
         self.player_stats = []
-        for idx, hand in enumerate(self.holdem_hands):
+        for idx, hand in enumerate(self.holdem_ranges):
             label = '%r' % hand
             self.player_stats.append(
                 HandDistribution(player_label=label))
+
+    def _validate_input_specification(
+            self, holdem_ranges, board_cards, dead_cards):
+        """Sanity check for the input.
+
+        Ensures that cards aren't specified multiple times.
+        """
+        explicit_card_count = collections.defaultdict(int)
+        for c in (board_cards + dead_cards) or ():
+            explicit_card_count[c] += 1
+
+        for her in holdem_ranges:
+            if len(her.possible_hands) == 1:
+                for c in her.possible_hands[0].cards:
+                    explicit_card_count[c] += 1
+
+        multiple_specified_cards = []
+        for card, count in explicit_card_count.iteritems():
+            if count > 1:
+                multiple_specified_cards.append(card)
+        if multiple_specified_cards:
+            raise Error('Cards specified multiple times: %s' % (
+                ','.join('%s' % c for c in multiple_specified_cards)))
 
     def _reset_deck(self, player_starting_hands):
         if not self.current_deck:
@@ -95,8 +124,8 @@ class MonteCarloRunner(object):
             self.iterations, self.elapsed_time)
 
         print 'Overall Equity'
-        for index in range(len(self.holdem_hands)):
-            range_short_form = '%r' % self.holdem_hands[index]
+        for index in range(len(self.holdem_ranges)):
+            range_short_form = '%r' % self.holdem_ranges[index]
             print 'P%s)  %-15s %0.3f' % (
                 index,
                 range_short_form,
@@ -160,7 +189,7 @@ class MonteCarloRunner(object):
         return winning_indices
 
     def select_hands_for_players(self):
-        return [random.choice(h.possible_hands) for h in self.holdem_hands]
+        return [random.choice(h.possible_hands) for h in self.holdem_ranges]
 
     def run_iteration(self):
         """Run a single iteration of the simulation."""

@@ -31,6 +31,13 @@ HAND_RANKS = {
 
 HAND_RANGE_REGEX = re.compile(r'([2-9tjqka]{2}|[2-9tjqka]{2}[os])')
 
+class Error(Exception):
+    pass
+
+
+class InvalidHandSpecification(Error):
+    """Raised if the hand specification results in zero hands."""
+
 
 class PokerHand(object):
     """Represents a five card poker hand."""
@@ -94,27 +101,43 @@ def prettify_range_label(label):
         return label[0:2].upper() + label[2].lower()
     return label.upper()
 
-def parse_hands_into_holdem_hands(hand_input):
+def parse_hands_into_holdem_hands(hand_input, used_cards=None):
     """Split the string into holdem hands.
 
     Args:
         hand_input: str, comma separated string of concatenated short card
             names.  For example: "ahad,kskc,qdqc".  Space is ignored.
+        used_cards: list of Card, cards that are unavailable.  Only relevant
+            for hand ranges.
 
     Returns:
         list of HoldemHandRange.
+
+    Raises:
+        InvalidHandSpeci
     """
     holdem_ranges = []
     hands = hand_input.replace(' ', '').lower().split(',')
 
     for hand in hands:
         if HAND_RANGE_REGEX.search(hand):
-            possible_hands = hand_ranges.single_hand_description_to_hands(hand)
+            possible_hands = hand_ranges.single_hand_description_to_hands(
+                hand, dead_cards=used_cards)
+            if not possible_hands:
+                raise InvalidHandSpecification(
+                    'No hands possible from %s with used cards: %s' % (
+                        hand, used_cards))
             holdem_ranges.append(
                 HoldemHandRange(possible_hands,
                                 label=prettify_range_label(hand)))
         else:
             he_hand = HoldemHand(cards=parse_string_into_cards(hand))
+            # TODO: clean this up.
+            if used_cards:
+                for c in he_hand.cards:
+                    if used_cards and c in used_cards:
+                        raise InvalidHandSpecification(
+                            'Required card in hand %s is unavailable' % he_hand)
             holdem_ranges.append(HoldemHandRange([he_hand]))
     return holdem_ranges
 

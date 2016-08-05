@@ -22,6 +22,50 @@ class MonteCarloRunnerTest(unittest.TestCase):
         for rc in removed_cards:
             self.assertNotIn(rc, mcr.current_deck.cards)
 
+    def test_overlapping_card_specs_dead_and_hand(self):
+        board_cards = []
+        dead_cards = poker_hand.parse_string_into_cards('3h')
+        hand_ranges = poker_hand.parse_hands_into_holdem_hands('3h4h')
+
+        with self.assertRaisesRegexp(
+            monte_carlo_runner.Error, 'Cards specified multiple times'):
+            monte_carlo_runner.MonteCarloRunner(
+                hand_ranges, board_cards=board_cards, dead_cards=dead_cards)
+
+    def test_overlapping_card_specs_hands(self):
+        hand_ranges = poker_hand.parse_hands_into_holdem_hands(
+            '3hJh,Qh6d,JhAs')
+        with self.assertRaisesRegexp(
+            monte_carlo_runner.Error, 'Cards specified multiple times'):
+            monte_carlo_runner.MonteCarloRunner(hand_ranges)
+
+    def test_non_overlapping_card_hands(self):
+        hand_ranges = poker_hand.parse_hands_into_holdem_hands('TT')
+        dead_cards = poker_hand.parse_string_into_cards('Th')
+
+        # Checking that this does not raise an exception, even though TT and
+        # Th potentially overlap.
+        monte_carlo_runner.MonteCarloRunner(hand_ranges, dead_cards=dead_cards)
+
+    def test_overlapping_card_specs_hand_and_board(self):
+        board_cards = poker_hand.parse_string_into_cards('3h')
+        dead_cards = []
+        hand_ranges = poker_hand.parse_hands_into_holdem_hands('3h4h')
+
+        with self.assertRaisesRegexp(
+            monte_carlo_runner.Error, 'Cards specified multiple times'):
+            monte_carlo_runner.MonteCarloRunner(
+                hand_ranges, board_cards=board_cards, dead_cards=dead_cards)
+           
+
+    def test_overapping_card_specs_dead_and_board(self):
+        board_cards = poker_hand.parse_string_into_cards('2h3h')
+        dead_cards = poker_hand.parse_string_into_cards('3h')
+
+        with self.assertRaises(monte_carlo_runner.Error):
+            monte_carlo_runner.MonteCarloRunner(
+                [], board_cards=board_cards, dead_cards=dead_cards)
+
     def test_get_best_hands_for_players(self):
         he_hands = poker_hand.parse_hands_into_holdem_hands('asad,2h2d')
         board_cards = poker_hand.parse_string_into_cards('ac,ah,kd,kc,2c')

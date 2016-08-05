@@ -28,6 +28,24 @@ class HoldemHandTest(unittest.TestCase):
 
 
 class PokerHandParsingTest(unittest.TestCase):
+
+    def test_parse_hands_into_holdem_hands_invalid_explicit(self):
+        hand_input = 'asad'
+        used_cards = [card.create_card_from_short_name('As')]
+        with self.assertRaises(poker_hand.InvalidHandSpecification):
+            poker_hand.parse_hands_into_holdem_hands(
+                hand_input, used_cards=used_cards)
+
+    def test_parse_hands_into_holdem_hands_impossible_pair(self):
+        hand_input = 'tt'
+        short_names = ['th', 'ts', 'td']
+        used_cards = [card.create_card_from_short_name(sn)
+                      for sn in short_names]
+
+        with self.assertRaises(poker_hand.InvalidHandSpecification):
+            poker_hand.parse_hands_into_holdem_hands(
+                hand_input, used_cards=used_cards)
+
     def test_parse_hands_valid_one_hand(self):
         hand_input = 'ahad'
         ranges = poker_hand.parse_hands_into_holdem_hands(hand_input)

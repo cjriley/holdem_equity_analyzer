@@ -17,6 +17,10 @@ class HandRangesTest(unittest.TestCase):
         with self.assertRaises(hand_ranges.HandDescriptionParseError):
             hand_ranges.single_hand_description_to_hands('ZZ')
 
+    def test_single_hand_description_bad_rank_suited(self):
+        with self.assertRaises(hand_ranges.HandDescriptionParseError):
+            hand_ranges.single_hand_description_to_hands('QZo')
+
     def test_single_hand_description_to_hands_suited(self):
         desc = '76s'
         hands = hand_ranges.single_hand_description_to_hands(desc)
