@@ -1,4 +1,6 @@
 """Tests for card.py"""
+# pylint: disable=missing-docstring
+
 import unittest
 
 import card

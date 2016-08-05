@@ -1,3 +1,5 @@
+"""Tests for poker_hand.py"""
+# pylint: disable=missing-docstring
 import unittest
 
 import card
@@ -281,6 +283,32 @@ class PokerHandTest(unittest.TestCase):
         self.assertEqual(
             poker_hand.HIGH_CARD, poker_hand.get_hand_rank(hand))
 
+    def test_two_pair_hand_comparison(self):
+        sn1 = ['Ad', 'As', 'Ks', 'Kd', '9h']
+        hand1 = self._create_poker_hand_from_short_name_list(sn1)
+
+        sn2 = ['Ad', 'As', 'Ks', 'Kd', '7h']
+        hand2 = self._create_poker_hand_from_short_name_list(sn2)
+
+        self.assertTrue(hand1 > hand2)
+
+    def test_high_card_comparison(self):
+        sn1 = ['Ad', 'Ks', 'Jd', '8s', '3d']
+        hand1 = self._create_poker_hand_from_short_name_list(sn1)
+
+        sn2 = ['As', 'Qs', 'Jd', '8s', '3d']
+        hand2 = self._create_poker_hand_from_short_name_list(sn2)
+
+        self.assertTrue(hand1 > hand2)
+
+    def test_one_pair_hand_comparison(self):
+        sn1 = ['As', 'Ad', 'Qd', '5h', 'Td']
+        hand1 = self._create_poker_hand_from_short_name_list(sn1)
+        sn2 = ['As', 'Ad', 'kd', '5h', 'Td']
+        hand2 = self._create_poker_hand_from_short_name_list(sn2)
+
+        self.assertTrue(hand1 < hand2)
+
     def test_hand_comparison_different_ranks_lhs_better(self):
         lhs_short_names = ['2c', '3c', '4c', '5c', '6c']
         lhs_hand = self._create_poker_hand_from_short_name_list(lhs_short_names)
@@ -304,6 +332,15 @@ class PokerHandTest(unittest.TestCase):
         lhs_hand = self._create_poker_hand_from_short_name_list(lhs_short_names)
 
         rhs_short_names = ['2c', '2s', '5h', '5c', '6c']
+        rhs_hand = self._create_poker_hand_from_short_name_list(rhs_short_names)
+
+        self.assertGreater(lhs_hand, rhs_hand)
+
+    def test_compare_secondary_ranks_distinct_cards(self):
+        lhs_short_names = ['ah', 'qd', 'ts', '9s', '8c']
+        lhs_hand = self._create_poker_hand_from_short_name_list(lhs_short_names)
+
+        rhs_short_names = ['ah', 'jd', 'ts', '9s', '8c']
         rhs_hand = self._create_poker_hand_from_short_name_list(rhs_short_names)
 
         self.assertGreater(lhs_hand, rhs_hand)

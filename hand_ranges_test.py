@@ -1,3 +1,5 @@
+"""Tests for hand_ranges.py"""
+# pylint: disable=missing-docstring
 import unittest
 
 import card

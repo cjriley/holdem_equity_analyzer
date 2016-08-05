@@ -189,14 +189,14 @@ def compare_secondary_ranks(lhs, rhs):
         return 1
 
     lhs_buckets = _build_rank_buckets_from_hand(lhs)
-    lhs_relevant_ranks = [k for k in sorted(
-        lhs_buckets, key=lambda k: -lhs_buckets[k])]
+    lhs_rank_counts = reversed(
+            sorted((ct, rank) for rank, ct in lhs_buckets.iteritems()))
     rhs_buckets = _build_rank_buckets_from_hand(rhs)
-    rhs_relevant_ranks = [k for k in sorted(
-        rhs_buckets, key=lambda k: -rhs_buckets[k])]
-    for lhs_rank, rhs_rank in zip(lhs_relevant_ranks, rhs_relevant_ranks):
-        if lhs_rank != rhs_rank:
-            return lhs_rank - rhs_rank
+    rhs_rank_counts = reversed(
+            sorted((ct, rank) for rank, ct in rhs_buckets.iteritems()))
+    for lhs_info, rhs_info in zip(lhs_rank_counts, rhs_rank_counts):
+        if lhs_info[1] != rhs_info[1]:
+            return lhs_info[1] - rhs_info[1]
     return 0
 
 
