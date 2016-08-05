@@ -56,7 +56,7 @@ class MonteCarloRunnerTest(unittest.TestCase):
             monte_carlo_runner.Error, 'Cards specified multiple times'):
             monte_carlo_runner.MonteCarloRunner(
                 hand_ranges, board_cards=board_cards, dead_cards=dead_cards)
-           
+
 
     def test_overapping_card_specs_dead_and_board(self):
         board_cards = poker_hand.parse_string_into_cards('2h3h')
@@ -144,7 +144,8 @@ class HandDistributionTest(unittest.TestCase):
                 hd.increment_rank(rank, monte_carlo_runner.WIN_RESULT)
 
         for rank, result_dict in hd.counts.iteritems():
-            self.assertEqual(rank_counts.get(rank, 0), sum(result_dict.itervalues()))
+            self.assertEqual(rank_counts.get(rank, 0),
+                             sum(result_dict.itervalues()))
         self.assertEqual(6, hd.total_items)
 
 

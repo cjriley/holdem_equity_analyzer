@@ -6,7 +6,7 @@ import poker_hand
 
 class HoldemHandTest(unittest.TestCase):
     def test_hand_eq(self):
-        lhs_short = ['as','ad']
+        lhs_short = ['as', 'ad']
         lhs_cards = [card.create_card_from_short_name(sn) for sn in lhs_short]
 
         rhs_cards = [card.create_card_from_short_name(sn) for sn in lhs_short]
@@ -17,7 +17,7 @@ class HoldemHandTest(unittest.TestCase):
         self.assertEqual(lhs_he_hand, rhs_he_hand)
 
     def test_hand_eq_ne(self):
-        lhs_short = ['as','ad']
+        lhs_short = ['as', 'ad']
         lhs_cards = [card.create_card_from_short_name(sn) for sn in lhs_short]
         lhs_he_hand = poker_hand.HoldemHand(cards=lhs_cards)
 
@@ -99,8 +99,8 @@ class PokerHandParsingTest(unittest.TestCase):
 
     def test_parse_hands_one_hand_invalid(self):
         hand_input = 'asqc,jjjc'
-        with self.assertRaisesRegexp(
-                hand_ranges.HandDescriptionParseError, 'Invalid hand'):
+        with self.assertRaisesRegexp(hand_ranges.HandDescriptionParseError,
+                                     'Invalid hand'):
             poker_hand.parse_hands_into_holdem_hands(hand_input)
 
 
@@ -369,7 +369,7 @@ class PokerHandTest(unittest.TestCase):
 
         self.assertTrue(lhs_hand == rhs_hand)
         self.assertFalse(lhs_hand > rhs_hand)
-    
+
     def test_hand_range_re_pair(self):
         self.assertIsNotNone(poker_hand.HAND_RANGE_REGEX.search('88'))
 

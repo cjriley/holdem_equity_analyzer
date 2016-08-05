@@ -1,3 +1,4 @@
+"""Utilities for generating sets of hands from higher level descriptions."""
 import itertools
 
 import card
@@ -12,6 +13,17 @@ class HandDescriptionParseError(Error):
 
 
 def single_hand_description_to_hands(description, dead_cards=None):
+    """Translate a hand description into actual HoldemHands.
+
+    Args:
+        description: str, representing the hand.  Of the form "88", or "AKo", or
+            "AKs".
+        dead_cards: list of Cards or None, any cards that should be excluded
+            from consideration when generating the hands.
+
+    Returns:
+        list of HoldemHand.
+    """
     description = description.lower()
 
     # Pairs are the same character twice.
@@ -26,7 +38,7 @@ def single_hand_description_to_hands(description, dead_cards=None):
         short_rank1 = description[0]
         short_rank2 = description[1]
         if (short_rank1 not in card.SHORT_RANKS_TO_FULL_RANKS or
-            short_rank2 not in card.SHORT_RANKS_TO_FULL_RANKS):
+                short_rank2 not in card.SHORT_RANKS_TO_FULL_RANKS):
             raise HandDescriptionParseError(
                 'Rank %s or %s is invalid' % (short_rank1, short_rank2))
         full_rank1 = card.SHORT_RANKS_TO_FULL_RANKS[short_rank1]
@@ -37,7 +49,9 @@ def single_hand_description_to_hands(description, dead_cards=None):
         elif description[2] == 's':
             return generate_suited_hands(
                 full_rank1, full_rank2, dead_cards=dead_cards)
-    raise HandDescriptionParseError('Invalid hand description: %s' % description)
+    raise HandDescriptionParseError(
+        'Invalid hand description: %s' % description)
+
 
 def generate_pair_hands(rank, dead_cards=None):
     """Generates all possible pair hands for the given rank."""
@@ -50,9 +64,20 @@ def generate_pair_hands(rank, dead_cards=None):
         filtered_cards = [c for c in cards if c not in dead_cards]
 
     return [poker_hand.HoldemHand(cards=c)
-            for c in itertools.combinations(filtered_cards, 2)] 
+            for c in itertools.combinations(filtered_cards, 2)]
 
 def generate_suited_hands(rank1, rank2, dead_cards=None):
+    """Generates all suited combinations of the two ranks.
+
+    Args:
+        rank1: str, a card rank.
+        rank2: str, a card rank.
+        dead_cards: str, list of Cards or None.  Cards that should be excluded
+            from consideration.
+
+    Returns:
+        list of HoldemHand.
+    """
     hands = []
     for suit in card.SUITS:
         c1 = card.Card(suit, rank1)
@@ -62,7 +87,19 @@ def generate_suited_hands(rank1, rank2, dead_cards=None):
         hands.append(poker_hand.HoldemHand(cards=[c1, c2]))
     return hands
 
+
 def generate_unsuited_hands(rank1, rank2, dead_cards=None):
+    """Generates all unsuited combinations of the two ranks.
+
+    Args:
+        rank1: str, a card rank.
+        rank2: str, another card rank.
+        dead_cards: str, list of cards or None.  Cards that should be excluded
+            from consideration.
+
+    Returns:
+        list of HoldemHand.
+    """
     c1_possibilities = [card.Card(s, rank1) for s in card.SUITS]
     c2_possibilities = [card.Card(s, rank2) for s in card.SUITS]
 

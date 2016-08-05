@@ -7,11 +7,9 @@ Specific hands without any interaction for dead cards and board cards:
     $ python main_holdem_odds.py --hands=AsAd,KsKd,2c3c --nointeraction
 """
 import argparse
-import re
 
 import monte_carlo_runner
 import poker_hand
-
 
 
 def get_player_hands(hands='', used_cards=None):
@@ -33,7 +31,7 @@ def get_player_hands(hands='', used_cards=None):
                'For example, ahad,kskd')
         hands = raw_input()
     return poker_hand.parse_hands_into_holdem_hands(
-            hands, used_cards=used_cards)
+        hands, used_cards=used_cards)
 
 
 def get_board_cards(board_cards='', interaction=True):

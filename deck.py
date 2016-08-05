@@ -3,8 +3,10 @@ import card
 import random
 
 def reverse_enumerator(input_list):
+    """Enumerate a sequence in reverse."""
     for index in reversed(xrange(len(input_list))):
         yield index, input_list[index]
+
 
 def generate_deck():
     """Generates a standard 52 card deck.
@@ -13,6 +15,7 @@ def generate_deck():
         List of cards, one of each suit/rank.
     """
     return [card.Card(s, r) for s in card.SUITS for r in card.RANKS]
+
 
 class Deck(object):
     def __init__(self):

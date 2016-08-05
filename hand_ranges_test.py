@@ -1,5 +1,3 @@
-import itertools
-import mock
 import unittest
 
 import card

@@ -79,10 +79,9 @@ class MonteCarloRunner(object):
         # Hand index to number of wins.
         self.win_stats = collections.defaultdict(float)
         self.player_stats = []
-        for idx, hand in enumerate(self.holdem_ranges):
-            label = '%r' % hand
+        for hand in self.holdem_ranges:
             self.player_stats.append(
-                HandDistribution(player_label=label))
+                HandDistribution(player_label=str(hand)))
 
     def _validate_input_specification(
             self, holdem_ranges, board_cards, dead_cards):
@@ -189,6 +188,11 @@ class MonteCarloRunner(object):
         return winning_indices
 
     def select_hands_for_players(self):
+        """Randomly selects hands for each player.
+
+        Returns:
+            list of HoldemHand, which specific hand to use for each player.
+        """
         return [random.choice(h.possible_hands) for h in self.holdem_ranges]
 
     def run_iteration(self):
@@ -220,4 +224,4 @@ class MonteCarloRunner(object):
             else:
                 self.player_stats[idx].increment_rank(
                     best_hand.hand_rank, LOSS_RESULT)
-            
+
