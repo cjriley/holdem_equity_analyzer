@@ -101,7 +101,6 @@ class HandRangesTest(unittest.TestCase):
     def test_generate_pair_hands(self):
         rank = 'Two'
         all_pairs = hand_ranges.generate_pair_hands(rank)
-        print all_pairs
 
         self.assertEqual(6, len(all_pairs))
         expected_hand = poker_hand.HoldemHand(

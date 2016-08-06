@@ -49,122 +49,159 @@ Run an interactive version of the script:
 
     python ./main_holdem_odds.py
 
-    Please input comma separated hold em hands.  For example, ahad,kskd
-    AsAd,QsQc,7h6h
-
     Please input the board cards, separated by spaces.  For example, "Ah As"
 
     Please input any dead cards, separated by spaces.  For example, "Ah As"
 
+    Please input comma separated hold em hands.  For example, ahad,kskd
+    AsAd,QsQc,7h6h
+
+    Ran 1000 iterations in 1.725 seconds
+
     Overall Equity
-    P0)  AsAd            0.575
-    P1)  QsQc            0.200
-    P2)  7h6h            0.226
+    P0)  AsAd            0.618
+    P1)  QsQc            0.152
+    P2)  7h6h            0.230
 
 
     Hand distribution for each player
     ==================== AsAd ====================
     Hand================    #       Frac       W     Tie       L
-    Four-of-a-kind         15       0.015   1.000   0.000   0.000
-    Two pair              383       0.383   0.556   0.000   0.444
-    Three-of-a-kind       123       0.123   0.732   0.000   0.268
-    Straight               18       0.018   0.278   0.111   0.611
-    Flush                  17       0.017   0.471   0.000   0.529
+    Four-of-a-kind         10       0.010   1.000   0.000   0.000
+    Two pair              408       0.408   0.588   0.000   0.412
+    Three-of-a-kind       124       0.124   0.790   0.000   0.210
+    Straight               10       0.010   0.200   0.000   0.800
+    Flush                  23       0.023   0.739   0.000   0.261
     Straight Flush          0       0.000   0.000   0.000   0.000
     High Card               0       0.000   0.000   0.000   0.000
-    One pair              351       0.351   0.436   0.000   0.564
-    Full House             93       0.093   0.968   0.000   0.032
+    One pair              313       0.313   0.466   0.000   0.534
+    Full House            112       0.112   0.938   0.000   0.062
     ==================== QsQc ====================
     Hand================    #       Frac       W     Tie       L
-    Four-of-a-kind          9       0.009   1.000   0.000   0.000
-    Two pair              392       0.392   0.069   0.000   0.931
-    Three-of-a-kind       125       0.125   0.560   0.000   0.440
-    Straight               25       0.025   0.720   0.080   0.200
-    Flush                  19       0.019   0.737   0.000   0.263
-    Straight Flush          0       0.000   0.000   0.000   0.000
+    Four-of-a-kind         13       0.013   0.923   0.000   0.077
+    Two pair              420       0.420   0.000   0.000   1.000
+    Three-of-a-kind       107       0.107   0.551   0.000   0.449
+    Straight               11       0.011   0.727   0.000   0.273
+    Flush                  25       0.025   0.360   0.000   0.640
+    Straight Flush          1       0.001   1.000   0.000   0.000
     High Card               0       0.000   0.000   0.000   0.000
-    One pair              340       0.340   0.000   0.000   1.000
-    Full House             90       0.090   0.678   0.000   0.322
+    One pair              325       0.325   0.000   0.000   1.000
+    Full House             98       0.098   0.643   0.000   0.357
     ==================== 7h6h ====================
     Hand================    #       Frac       W     Tie       L
-    Four-of-a-kind          1       0.001   1.000   0.000   0.000
-    Two pair              254       0.254   0.161   0.000   0.839
-    Three-of-a-kind        44       0.044   0.545   0.000   0.455
-    Straight               88       0.088   0.795   0.023   0.182
-    Flush                  99       0.099   0.747   0.000   0.253
-    Straight Flush          4       0.004   1.000   0.000   0.000
-    High Card             142       0.142   0.000   0.000   1.000
-    One pair              340       0.340   0.000   0.000   1.000
-    Full House             28       0.028   0.393   0.000   0.607
+    Four-of-a-kind          4       0.004   0.750   0.000   0.250
+    Two pair              206       0.206   0.107   0.000   0.893
+    Three-of-a-kind        51       0.051   0.471   0.000   0.529
+    Straight              106       0.106   0.934   0.000   0.066
+    Flush                  82       0.082   0.720   0.000   0.280
+    Straight Flush          3       0.003   1.000   0.000   0.000
+    High Card             118       0.118   0.000   0.000   1.000
+    One pair              395       0.395   0.000   0.000   1.000
+    Full House             35       0.035   0.571   0.000   0.429
 
-
-Run a non-interactive version.
+    Run a non-interactive version.
 
     python ./main_holdem_odds.py --hands=2c3c,TsTd --nointeraction
 
-    Ran 1000 iterations in 1.038 seconds
+    Ran 1000 iterations in 1.126 seconds
 
     Overall Equity
-    P0)  2c3c            0.185
-    P1)  TsTd            0.815
+    P0)  2c3c            0.196
+    P1)  TsTd            0.804
 
 
     Hand distribution for each player
     ==================== 2c3c ====================
     Hand================    #       Frac       W     Tie       L
-    Four-of-a-kind          3       0.003   1.000   0.000   0.000
-    Two pair              226       0.226   0.204   0.009   0.788
-    Three-of-a-kind        50       0.050   0.520   0.000   0.480
-    Straight               43       0.043   0.837   0.070   0.093
-    Flush                  59       0.059   0.831   0.017   0.153
-    Straight Flush          1       0.001   1.000   0.000   0.000
-    High Card             174       0.174   0.000   0.000   1.000
-    One pair              411       0.411   0.000   0.000   1.000
-    Full House             33       0.033   0.606   0.091   0.303
+    Four-of-a-kind          2       0.002   1.000   0.000   0.000
+    Two pair              235       0.235   0.140   0.000   0.860
+    Three-of-a-kind        49       0.049   0.469   0.000   0.531
+    Straight               55       0.055   0.927   0.055   0.018
+    Flush                  79       0.079   0.810   0.038   0.152
+    Straight Flush          0       0.000   0.000   0.000   0.000
+    High Card             153       0.153   0.000   0.000   1.000
+    One pair              401       0.401   0.000   0.000   1.000
+    Full House             26       0.026   0.769   0.000   0.231
     ==================== TsTd ====================
     Hand================    #       Frac       W     Tie       L
-    Four-of-a-kind          9       0.009   1.000   0.000   0.000
-    Two pair              373       0.373   0.791   0.005   0.204
-    Three-of-a-kind       141       0.141   0.879   0.000   0.121
-    Straight               30       0.030   0.800   0.100   0.100
-    Flush                  20       0.020   0.950   0.050   0.000
+    Four-of-a-kind         15       0.015   1.000   0.000   0.000
+    Two pair              405       0.405   0.800   0.000   0.200
+    Three-of-a-kind       125       0.125   0.832   0.000   0.168
+    Straight               31       0.031   0.806   0.097   0.097
+    Flush                  16       0.016   0.750   0.188   0.062
     Straight Flush          0       0.000   0.000   0.000   0.000
     High Card               0       0.000   0.000   0.000   0.000
-    One pair              342       0.342   0.760   0.000   0.240
-    Full House             85       0.085   0.929   0.035   0.035
+    One pair              310       0.310   0.726   0.000   0.274
+    Full House             98       0.098   0.980   0.000   0.020
 
-Specify a board:
+
+    Specify a board:
 
     python ./main_holdem_odds.py --hands=2c3c,TsTd --board_cards=4c5cTh --nointeraction
 
-    Ran 1000 iterations in 0.989 seconds
+    Ran 1000 iterations in 1.044 seconds
 
     Overall Equity
-    P0)  2c3c            0.423
-    P1)  TsTd            0.577
+    P0)  2c3c            0.422
+    P1)  TsTd            0.578
 
 
     Hand distribution for each player
     ==================== 2c3c ====================
     Hand================    #       Frac       W     Tie       L
     Four-of-a-kind          0       0.000   0.000   0.000   0.000
-    Two pair               51       0.051   0.000   0.000   1.000
-    Three-of-a-kind        14       0.014   0.000   0.000   1.000
-    Straight              195       0.195   0.769   0.000   0.231
-    Flush                 256       0.256   0.707   0.000   0.293
-    Straight Flush         92       0.092   1.000   0.000   0.000
-    High Card             137       0.137   0.000   0.000   1.000
-    One pair              255       0.255   0.000   0.000   1.000
+    Two pair               53       0.053   0.000   0.000   1.000
+    Three-of-a-kind         8       0.008   0.000   0.000   1.000
+    Straight              205       0.205   0.780   0.000   0.220
+    Flush                 300       0.300   0.607   0.000   0.393
+    Straight Flush         80       0.080   1.000   0.000   0.000
+    High Card             113       0.113   0.000   0.000   1.000
+    One pair              241       0.241   0.000   0.000   1.000
     Full House              0       0.000   0.000   0.000   0.000
     ==================== TsTd ====================
     Hand================    #       Frac       W     Tie       L
-    Four-of-a-kind         33       0.033   0.970   0.000   0.030
+    Four-of-a-kind         55       0.055   1.000   0.000   0.000
     Two pair                0       0.000   0.000   0.000   0.000
-    Three-of-a-kind       668       0.668   0.394   0.000   0.606
+    Three-of-a-kind       630       0.630   0.368   0.000   0.632
     Straight                0       0.000   0.000   0.000   0.000
     Flush                   0       0.000   0.000   0.000   0.000
     Straight Flush          0       0.000   0.000   0.000   0.000
     High Card               0       0.000   0.000   0.000   0.000
     One pair                0       0.000   0.000   0.000   0.000
-    Full House            299       0.299   0.943   0.000   0.057
+    Full House            315       0.315   0.924   0.000   0.076
 
+    
+    Use general hands:
+
+    python ./main_holdem_odds.py --hands=88,KQs --nointeraction
+
+    Ran 1000 iterations in 1.116 seconds
+
+    Overall Equity
+    P0)  88              0.497
+    P1)  KQs             0.502
+
+
+    Hand distribution for each player
+    ==================== 88 ====================
+    Hand================    #       Frac       W     Tie       L
+    Four-of-a-kind          4       0.004   1.000   0.000   0.000
+    Two pair              426       0.426   0.444   0.000   0.556
+    Three-of-a-kind       111       0.111   0.901   0.000   0.099
+    Straight               26       0.026   0.500   0.077   0.423
+    Flush                  30       0.030   0.767   0.033   0.200
+    Straight Flush          0       0.000   0.000   0.000   0.000
+    High Card               0       0.000   0.000   0.000   0.000
+    One pair              321       0.321   0.296   0.000   0.704
+    Full House             82       0.082   0.878   0.000   0.122
+    ==================== KQs ====================
+    Hand================    #       Frac       W     Tie       L
+    Four-of-a-kind          1       0.001   1.000   0.000   0.000
+    Two pair              226       0.226   0.765   0.000   0.235
+    Three-of-a-kind        41       0.041   0.659   0.000   0.341
+    Straight               70       0.070   0.929   0.029   0.043
+    Flush                  59       0.059   0.932   0.017   0.051
+    Straight Flush          1       0.001   1.000   0.000   0.000
+    High Card             163       0.163   0.000   0.000   1.000
+    One pair              410       0.410   0.366   0.000   0.634
+    Full House             29       0.029   1.000   0.000   0.000
