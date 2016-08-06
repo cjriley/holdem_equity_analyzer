@@ -99,7 +99,7 @@ Run an interactive version of the script:
     One pair              395       0.395   0.000   0.000   1.000
     Full House             35       0.035   0.571   0.000   0.429
 
-    Run a non-interactive version.
+Run a non-interactive version.
 
     python ./main_holdem_odds.py --hands=2c3c,TsTd --nointeraction
 
@@ -135,7 +135,7 @@ Run an interactive version of the script:
     Full House             98       0.098   0.980   0.000   0.020
 
 
-    Specify a board:
+Specify a board:
 
     python ./main_holdem_odds.py --hands=2c3c,TsTd --board_cards=4c5cTh --nointeraction
 
@@ -171,7 +171,7 @@ Run an interactive version of the script:
     Full House            315       0.315   0.924   0.000   0.076
 
     
-    Use general hands:
+Use general hands:
 
     python ./main_holdem_odds.py --hands=88,KQs --nointeraction
 
